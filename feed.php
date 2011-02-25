@@ -3,6 +3,7 @@ class TwitterResolver {
 	const RESOLVE_URL = 'http://api.twitter.com/1/users/show.json?screen_name=%s'; // URL to fetch user info from
 	const FEED_URL = 'http://api.twitter.com/1/statuses/user_timeline.json?screen_name=%s&count=%d&trim_user=1';
 	const USER_PATTERN = '/@(\w+)/';
+	const LINK_PATTERN = '/http:\/\/\S+/';
 	const FEED_CACHE_FILE = '%s-cache.json';
 	const NAME_CACHE_FILE = 'names.json';
 
@@ -42,8 +43,17 @@ class TwitterResolver {
 	
 	private function processTweet($tweet) {
 		if ($debug) printf("\tProcessing tweet: %s\n", $tweet->text);
+		
+		$result = preg_replace_callback(self::LINK_PATTERN, array($this, 'resolveLink'), $tweet->text);
+		$result = preg_replace_callback(self::USER_PATTERN, array($this, 'resolveUser'), $result);
 
-		return preg_replace_callback(self::USER_PATTERN, array($this, 'resolveUser'), $tweet->text);
+		return $result;
+	}
+	
+	private function resolveLink($matches) {
+		$url = $matches[0];
+		
+		return sprintf('<a href="%s">%s</a>', $url, $url);
 	}
 	
 	private function resolveUser($matches) {
