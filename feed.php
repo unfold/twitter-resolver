@@ -44,10 +44,13 @@ class TwitterResolver {
 	private function processTweet($tweet) {
 		if ($debug) printf("\tProcessing tweet: %s\n", $tweet->text);
 		
-		$result = preg_replace_callback(self::LINK_PATTERN, array($this, 'resolveLink'), $tweet->text);
-		$result = preg_replace_callback(self::USER_PATTERN, array($this, 'resolveUser'), $result);
+		$date = new DateTime($tweet->created_at);
+		
+		$body = $tweet->text;
+		$body = preg_replace_callback(self::LINK_PATTERN, array($this, 'resolveLink'), $body);
+		$body = preg_replace_callback(self::USER_PATTERN, array($this, 'resolveUser'), $body);
 
-		return $result;
+		return array('time' => $date->format('c'), 'body' => $body);
 	}
 	
 	private function resolveLink($matches) {
