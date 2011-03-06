@@ -83,6 +83,6 @@ class TwitterResolver {
 	}
 }
 
-$resolver = new TwitterResolver('simenbrekken');
+$resolver = new TwitterResolver($_GET['screen_name']);
 exit($resolver->getTweets());
 ?>
