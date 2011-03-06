@@ -6,37 +6,21 @@ class TwitterResolver {
 	const LINK_PATTERN = '/http:\/\/\S+/';
 	const FEED_CACHE_FILE = '%s-cache.json';
 	const NAME_CACHE_FILE = 'names.json';
-
-	public $ttl = 300;
-	public $count = 10;
-	public $debug = false;
 	
-	private $screen_name;
-	
-	public function __construct($screen_name) {
-		$this->screen_name = $screen_name;
+	public function fetchTweets($screen_name, $count = 10) {
+		$cache_file = sprintf(self::FEED_CACHE_FILE, $screen_name);
+		$feed_url = sprintf(self::FEED_URL, $screen_name, $count);
+		
+		$tweets = json_decode(file_get_contents($feed_url));
+		$data = array_map(array($this, 'processTweet'), $tweets);
+		$result = json_encode($data);
+		
+		file_put_contents($cache_file, $result);
 	}
 	
-	public function getTweets() {
-		// Check last modified
-		$cache_file = sprintf(self::FEED_CACHE_FILE, $this->screen_name);
-		$now = time();
-		$last_modified = file_exists($cache_file) ? filemtime($cache_file) : 0;
-		$expired = $now - $last_modified >= $this->ttl;
-		
-		if ($expired) {
-			$feed_url = sprintf(self::FEED_URL, $this->screen_name, $this->count);
-
-			if ($debug) printf("Fetching tweets from: %s\n", $feed_url);
-			
-			$tweets = json_decode(file_get_contents($feed_url));
-			$data = array_map(array($this, 'processTweet'), $tweets);
-			$result = json_encode($data);
-			
-			file_put_contents($cache_file, $result);
-		} else {
-			$result = file_get_contents($cache_file);
-		}
+	public function getTweets($screen_name) {
+		$cache_file = sprintf(self::FEED_CACHE_FILE, $screen_name);
+		$result = json_decode(file_get_contents($cache_file));
 		
 		return $result;
 	}
@@ -82,7 +66,4 @@ class TwitterResolver {
 		return sprintf('<a href="http://twitter.com/%s" title="@%s">%s</a>', $user, $user, $name);
 	}
 }
-
-$resolver = new TwitterResolver($_GET['screen_name']);
-exit($resolver->getTweets());
 ?>
