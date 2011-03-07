@@ -7,6 +7,8 @@ class TwitterResolver {
 	const FEED_CACHE_FILE = '%s/%s-cache.json';
 	const NAME_CACHE_FILE = '%s/names.json';
 	
+	public $names;
+	
 	private $cache_directory;
 	
 	public function __construct($cache_directory = '.') {
