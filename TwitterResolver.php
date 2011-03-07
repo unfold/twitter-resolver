@@ -76,7 +76,7 @@ class TwitterResolver {
 	private function resolveTopic($matches) {
 		$topic = $matches[1];
 		
-		return sprintf('<a href="http://twitter.com/#!/search?q=%%23%s" title="#%s" class="topic">%s</a>', $topic, $topic, $topic);
+		return sprintf('<a href="http://twitter.com/#!/search?q=%%23%s" title="#%s" class="topic">#%s</a>', $topic, $topic, $topic);
 	}	
 }
 ?>
