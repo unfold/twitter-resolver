@@ -4,11 +4,17 @@ class TwitterResolver {
 	const FEED_URL = 'http://api.twitter.com/1/statuses/user_timeline.json?screen_name=%s&count=%d&trim_user=1';
 	const USER_PATTERN = '/@(\w+)/';
 	const LINK_PATTERN = '/http:\/\/\S+/';
-	const FEED_CACHE_FILE = '%s-cache.json';
-	const NAME_CACHE_FILE = 'names.json';
+	const FEED_CACHE_FILE = '%s/%s-cache.json';
+	const NAME_CACHE_FILE = '%s/names.json';
+	
+	private $cache_directory;
+	
+	public function __construct($cache_directory = '.') {
+		$this->cache_directory = $cache_directory;
+	}
 	
 	public function fetchTweets($screen_name, $count = 10) {
-		$cache_file = sprintf(self::FEED_CACHE_FILE, $screen_name);
+		$cache_file = sprintf(self::FEED_CACHE_FILE, $this->cache_directory, $screen_name);
 		$feed_url = sprintf(self::FEED_URL, $screen_name, $count);
 		
 		$tweets = json_decode(file_get_contents($feed_url));
@@ -19,7 +25,7 @@ class TwitterResolver {
 	}
 	
 	public function getTweets($screen_name) {
-		$cache_file = sprintf(self::FEED_CACHE_FILE, $screen_name);
+		$cache_file = sprintf(self::FEED_CACHE_FILE, $this->cache_directory, $screen_name);
 		$result = json_decode(file_get_contents($cache_file));
 		
 		return $result;
@@ -45,9 +51,10 @@ class TwitterResolver {
 	
 	private function resolveUser($matches) {
 		$user = $matches[1];
+		$cache_file = sprintf(self::NAME_CACHE_FILE, $this->cache_directory);
 		
 		if (!$this->names) {
-			$this->names = file_exists(self::NAME_CACHE_FILE) ? json_decode(file_get_contents(self::NAME_CACHE_FILE), true) : array();
+			$this->names = file_exists() ? json_decode(file_get_contents($cache_file), true) : array();
 		}
 		
 		$name = $this->names[$user];
@@ -60,7 +67,7 @@ class TwitterResolver {
 			$info = json_decode(file_get_contents($info_url));
 			$this->names[$user] = $info->name;
 			
-			file_put_contents(self::NAME_CACHE_FILE, json_encode($this->names));
+			file_put_contents($cache_file, json_encode($this->names));
 		}
 		
 		return sprintf('<a href="http://twitter.com/%s" title="@%s">%s</a>', $user, $user, $name);
