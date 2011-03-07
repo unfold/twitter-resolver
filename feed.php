@@ -32,8 +32,6 @@ class TwitterResolver {
 	}
 	
 	private function processTweet($tweet) {
-		if ($debug) printf("\tProcessing tweet: %s\n", $tweet->text);
-		
 		$date = new DateTime($tweet->created_at);
 		
 		$body = $tweet->text;
@@ -54,15 +52,13 @@ class TwitterResolver {
 		$cache_file = sprintf(self::NAME_CACHE_FILE, $this->cache_directory);
 		
 		if (!$this->names) {
-			$this->names = file_exists() ? json_decode(file_get_contents($cache_file), true) : array();
+			$this->names = file_exists($cache_file) ? json_decode(file_get_contents($cache_file), true) : array();
 		}
 		
 		$name = $this->names[$user];
 		
 		if (!$name) {
 			$info_url = sprintf(self::RESOLVE_URL, $user);
-
-			if ($debug) printf("\t\tResolving user from: %s\n", $info_url);
 
 			$info = json_decode(file_get_contents($info_url));
 			$this->names[$user] = $info->name;
