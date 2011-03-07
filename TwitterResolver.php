@@ -3,6 +3,7 @@ class TwitterResolver {
 	const RESOLVE_URL = 'http://api.twitter.com/1/users/show.json?screen_name=%s'; // URL to fetch user info from
 	const FEED_URL = 'http://api.twitter.com/1/statuses/user_timeline.json?screen_name=%s&count=%d&trim_user=1';
 	const USER_PATTERN = '/@(\w+)/';
+	const TOPIC_PATTERN = '/#(\w+)/';
 	const LINK_PATTERN = '/http:\/\/\S+/';
 	const FEED_CACHE_FILE = '%s/%s-cache.json';
 	const NAME_CACHE_FILE = '%s/names.json';
@@ -39,6 +40,7 @@ class TwitterResolver {
 		$body = $tweet->text;
 		$body = preg_replace_callback(self::LINK_PATTERN, array($this, 'resolveLink'), $body);
 		$body = preg_replace_callback(self::USER_PATTERN, array($this, 'resolveUser'), $body);
+		$body = preg_replace_callback(self::TOPIC_PATTERN, array($this, 'resolveTopic'), $body);
 
 		return array('time' => $date->format('c'), 'body' => $body);
 	}
@@ -46,7 +48,7 @@ class TwitterResolver {
 	private function resolveLink($matches) {
 		$url = $matches[0];
 		
-		return sprintf('<a href="%s">%s</a>', $url, $url);
+		return sprintf('<a href="%s" class="link">%s</a>', $url, $url);
 	}
 	
 	private function resolveUser($matches) {
@@ -68,7 +70,13 @@ class TwitterResolver {
 			file_put_contents($cache_file, json_encode($this->names));
 		}
 		
-		return sprintf('<a href="http://twitter.com/%s" title="@%s">%s</a>', $user, $user, $name);
+		return sprintf('<a href="http://twitter.com/%s" title="@%s" class="user">%s</a>', $user, $user, $name);
 	}
+
+	private function resolveTopic($matches) {
+		$topic = $matches[1];
+		
+		return sprintf('<a href="http://twitter.com/#!/search?q=%%23%s" title="#%s" class="topic">%s</a>', $topic, $topic, $topic);
+	}	
 }
 ?>
