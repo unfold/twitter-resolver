@@ -16,12 +16,26 @@ class TwitterResolver {
 		$this->cache_directory = $cache_directory;
 	}
 	
-	public function fetchTweets($screen_name, $count = 10) {
+	public function fetchTweets($screen_name, $count = 10, $exclude_replies = false) {
 		$cache_file = sprintf(self::FEED_CACHE_FILE, $this->cache_directory, $screen_name);
-		$feed_url = sprintf(self::FEED_URL, $screen_name, $count);
+		$feed_url = sprintf(self::FEED_URL, $screen_name, $count * ($exclude_replies ? 10 : 1));
+		$data = json_decode(file_get_contents($feed_url));
 		
-		$tweets = json_decode(file_get_contents($feed_url));
-		$data = array_map(array($this, 'processTweet'), $tweets);
+		if ($exclude_replies) {
+			$tweets = array();
+			
+			for ($i = 0; $i < count($data) && count($tweets) < $count; $i++) {
+				$tweet = $data[$i];
+				
+				if (!preg_match('/^@/', $tweet->text)) {
+					$tweets[] = $tweet;
+				}
+			}
+			
+			$data = $tweets;
+		}
+		
+		$data = array_map(array($this, 'processTweet'), $data);
 		$result = json_encode($data);
 		
 		file_put_contents($cache_file, $result);
