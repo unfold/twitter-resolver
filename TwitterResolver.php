@@ -2,7 +2,7 @@
 class TwitterResolver {
 	const RESOLVE_URL = 'http://api.twitter.com/1/users/show.json?screen_name=%s'; // URL to fetch user info from
 	const FEED_URL = 'http://api.twitter.com/1/statuses/user_timeline.json?screen_name=%s&count=%d&trim_user=1';
-	const USER_PATTERN = '/@([^\s]+)/';
+	const USER_PATTERN = '/@([A-Za-z0-9_]+)/';
 	const TOPIC_PATTERN = '/#([^\s]+)/';
 	const LINK_PATTERN = '/http:\/\/\S+/';
 	const FEED_CACHE_FILE = '%s/%s-cache.json';
