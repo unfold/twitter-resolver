@@ -1,9 +1,9 @@
 <?php
 class TwitterResolver {
-	const RESOLVE_URL = 'http://api_.twitter.com/1/users/show.json?screen_name=%s'; // URL to fetch user info from
-	const FEED_URL = 'http://api_.twitter.com/1/statuses/user_timeline.json?screen_name=%s&count=%d&trim_user=1';
-	const USER_PATTERN = '/@(\w+)/';
-	const TOPIC_PATTERN = '/#(\w+)/';
+	const RESOLVE_URL = 'http://api.twitter.com/1/users/show.json?screen_name=%s'; // URL to fetch user info from
+	const FEED_URL = 'http://api.twitter.com/1/statuses/user_timeline.json?screen_name=%s&count=%d&trim_user=1';
+	const USER_PATTERN = '/@([^\s]+)/';
+	const TOPIC_PATTERN = '/#([^\s]+)/';
 	const LINK_PATTERN = '/http:\/\/\S+/';
 	const FEED_CACHE_FILE = '%s/%s-cache.json';
 	const NAME_CACHE_FILE = '%s/names.json';
@@ -77,13 +77,11 @@ class TwitterResolver {
 			$this->names = file_exists($cache_file) ? json_decode(file_get_contents($cache_file), true) : array();
 		}
 
-		$name = $this->names[$user];
-
-		if (!$name) {
+		if (!array_key_exists($user, $this->names)) {
 			$info_url = sprintf(self::RESOLVE_URL, $user);
 
 			$info = json_decode(file_get_contents($info_url));
-			$this->names[$user] = $info->name;
+			$name = $this->names[$user] = $info->name;
 
 			file_put_contents($cache_file, json_encode($this->names));
 		}
