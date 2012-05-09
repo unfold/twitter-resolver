@@ -77,9 +77,10 @@ class TwitterResolver {
 			$this->names = file_exists($cache_file) ? json_decode(file_get_contents($cache_file), true) : array();
 		}
 
-		if (!array_key_exists($user, $this->names)) {
-			$info_url = sprintf(self::RESOLVE_URL, $user);
+		$name = array_key_exists($user, $this->names) ? $this->names[$user] : null;
 
+		if (!$name) {
+			$info_url = sprintf(self::RESOLVE_URL, $user);
 			$info = json_decode(file_get_contents($info_url));
 			$name = $this->names[$user] = $info->name;
 
