@@ -17,7 +17,7 @@ class TwitterResolver {
     private $secret;
     private $token;
 
-    public function __construct($key, $secret, $cache_directory = '.') {
+    public function __construct($key = null, $secret = null, $cache_directory = '.') {
         $this->key = $key;
         $this->secret = $secret;
         $this->cache_directory = $cache_directory;
